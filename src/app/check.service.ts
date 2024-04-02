@@ -58,14 +58,18 @@ export class CheckService {
   }
 
   knightCheckTest(king: Piece, opponent: Piece) {
-    return (opponent.position.row == king.position.row + 1 && opponent.position.row == king.position.row + 2)
-      || (opponent.position.row == king.position.row + 1 && opponent.position.row == king.position.row - 2)
-      || (opponent.position.row == king.position.row - 1 && opponent.position.row == king.position.row + 2)
-      || (opponent.position.row == king.position.row - 1 && opponent.position.row == king.position.row - 2)
-      || (opponent.position.row == king.position.row + 2 && opponent.position.row == king.position.row + 1)
-      || (opponent.position.row == king.position.row + 2 && opponent.position.row == king.position.row - 1)
-      || (opponent.position.row == king.position.row - 2 && opponent.position.row == king.position.row + 1)
-      || (opponent.position.row == king.position.row - 2 && opponent.position.row == king.position.row - 1)
+    let pieceRow = opponent.position.row;
+    let pieceColumn = opponent.position.column;
+    let kingRow = king.position.row;
+    let kingColumn = king.position.column;
+    return (pieceRow == kingRow + 1 && opponent.position.row == king.position.row + 2)
+      || (pieceRow == kingRow + 1 && pieceColumn == kingColumn - 2)
+      || (pieceRow == kingRow - 1 && pieceColumn == kingColumn + 2)
+      || (pieceRow == kingRow - 1 && pieceColumn == kingColumn - 2)
+      || (pieceRow == kingRow + 2 && pieceColumn == kingColumn + 1)
+      || (pieceRow == kingRow + 2 && pieceColumn == kingColumn - 1)
+      || (pieceRow == kingRow - 2 && pieceColumn == kingColumn + 1)
+      || (pieceRow == kingRow - 2 && pieceColumn == kingColumn - 1)
   }
 
   bishopCheckTest(king: Piece, opponent: Piece, pieces: Piece[]): boolean {
