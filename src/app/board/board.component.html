@@ -1,0 +1,45 @@
+<div class="board-container">
+    <div class="promote" [style.display]="promoteColumn != undefined?'block':'none'"
+        [style.top]="whitesTurn()?'':'693px'">
+        <button (click)="promote(5)">
+            <app-piece [piece]="5" [white]="whitesTurn()"></app-piece>
+        </button>
+        <button (click)="promote(4)">
+            <app-piece [piece]="4" [white]="whitesTurn()"></app-piece>
+        </button>
+        <button (click)="promote(3)">
+            <app-piece [piece]="3" [white]="whitesTurn()"></app-piece>
+        </button>
+        <button (click)="promote(2)">
+            <app-piece [piece]="2" [white]="whitesTurn()"></app-piece>
+        </button>
+    </div>
+    <div class="board">
+        @for(row of board(); let rowId = $index; track rowId){
+        <div class="row">
+            @for(cell of row; let colId = $index; track colId){
+            <div [style.backgroundColor]="rowId % 2 == colId % 2 ? 'white' : 'grey'" class="cell"
+                (click)="select(cell, { row: rowId, column: colId })">
+                <app-piece [piece]="cell.piece" [white]="cell.white"
+                    [selected]="this.selectedCell()?.row == rowId && this.selectedCell()?.column == colId  && selectedPossibleMoves().length > 0"
+                    [possibleMove]="selectedPossibleMoves().indexOf(cell) != -1">
+                </app-piece>
+            </div>
+            }
+        </div>
+        }
+    </div>
+    @if(state() != 0) {
+    <app-game-over [white]="whitesTurn()" [reason]="state()"></app-game-over>
+    }
+</div>
+<div class="moves-container">
+    <h3>Moves:</h3>
+    <div class="moves">
+        @for(move of getPgnSplit(); track $index){
+        <div [style.grid-row]="pgnMoveRow($index)">
+            {{move}}
+        </div>
+        }
+    </div>
+</div>

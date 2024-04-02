@@ -1,0 +1,34 @@
+.board-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.board {
+    border: solid;
+    width: fit-content;
+    border-width: 1px;
+}
+.row {
+    display: flex;
+}
+.cell {
+    text-align: center;
+    width: 100px;
+    height: 100px;
+}
+
+.moves-container {
+    position: absolute;
+    right: 0;
+    top: 50px;
+    width: 300px;
+}
+
+.moves {
+    display:grid
+}
+
+.promote {
+    position: absolute;
+}
