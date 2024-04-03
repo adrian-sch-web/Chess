@@ -104,6 +104,22 @@ export class CheckService {
     return false;
   }
 
+  insufficienMaterialCheck(pieces: Piece[]): boolean {
+    if (pieces.length > 2) {
+      return false;
+    }
+    if (pieces.length == 1) {
+      return true;
+    }
+    if (pieces.findIndex(a => a.type == PieceType.Knight) != -1) {
+      return true;
+    }
+    if (pieces.findIndex(a => a.type == PieceType.Bishop) != -1) {
+      return true;
+    }
+    return false;
+  }
+
   getFEN(board: Cell[][], white: boolean): string {
     let stateFEN: string = '';
     for (let i = 0; i < board[0].length; i++) {

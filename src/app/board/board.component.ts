@@ -43,6 +43,7 @@ export class BoardComponent {
         case State.StaleMate:
         case State.ThreeFoldRepitition:
         case State.MovesRule:
+        case State.InsufficientMaterial:
           this.pgn += " 1/2-1/2";
       }
     });
@@ -54,10 +55,11 @@ export class BoardComponent {
   whitesTurn = signal<boolean>(true);
   movesSinceChange = signal<number>(0);
   boardStates = signal<Map<string, number>>(new Map());
+  //stores the Position of potential En Passent targets
   enPassent?: Position;
   promoteColumn?: number;
   turnCount: number = 0;
-  // portatable game notation
+  // portable game notation
   pgn: string = "";
 
   state = computed<State>(() => {
@@ -76,10 +78,14 @@ export class BoardComponent {
         return State.ThreeFoldRepitition
       }
     }
+    if (
+      this.check.insufficienMaterialCheck(this.whitePieces()) &&
+      this.check.insufficienMaterialCheck(this.blackPieces())
+    ) {
+      return State.InsufficientMaterial;
+    }
     return State.Running;
   });
-
-
 
   possibleMoves = computed<Map<Cell, Cell[]>>(() => {
     let moves = new Map<Cell, Cell[]>();
@@ -122,8 +128,6 @@ export class BoardComponent {
     return temp;
   })
 
-
-
   promote(type: PieceType) {
     let start = this.selectedCell()!;
     let end: Position = { row: this.whitesTurn() ? 0 : 7, column: this.promoteColumn! };
@@ -138,34 +142,7 @@ export class BoardComponent {
   }
 
   getPossibleMoves(piece: Piece): Cell[] {
-    let moves: Cell[];
-    switch (piece.type) {
-      case PieceType.Pawn:
-        moves = this.moves.pawnMove(piece, this.board(), this.whitesTurn(), this.enPassent);
-        break;
-      case PieceType.Knight:
-        moves = this.moves.knightMove(piece, this.board(), this.whitesTurn());
-        break;
-      case PieceType.Bishop:
-        moves = this.moves.bishopMove(piece, this.board(), this.whitesTurn());
-        break;
-      case PieceType.Rook:
-        moves = this.moves.rookMove(piece, this.board(), this.whitesTurn());
-        break;
-      case PieceType.Queen:
-        moves = this.moves.queenMove(piece, this.board(), this.whitesTurn());
-        break;
-      case PieceType.King:
-        moves = this.moves.kingMove(
-          piece,
-          this.board(),
-          this.whitesTurn() ? this.whitePieces() : this.blackPieces(),
-          this.whitesTurn()
-        );
-        break;
-      default:
-        return [];
-    }
+    let moves: Cell[] = this.allPotentialMoves(piece);
     let playerPieces: Piece[];
     let opponentPieces: Piece[];
     if (this.whitesTurn()) {
@@ -191,6 +168,36 @@ export class BoardComponent {
           !this.check.kingInCheck([...playerPieces, { position: move.position, moved: true, type: piece.type }], opponentPieces, this.whitesTurn());
       }
     });
+  }
+
+  allPotentialMoves(piece: Piece): Cell[] {
+    let moves: Cell[] = [];
+    switch (piece.type) {
+      case PieceType.Pawn:
+        moves = this.moves.pawnMove(piece, this.board(), this.whitesTurn(), this.enPassent);
+        break;
+      case PieceType.Knight:
+        moves = this.moves.knightMove(piece, this.board(), this.whitesTurn());
+        break;
+      case PieceType.Bishop:
+        moves = this.moves.bishopMove(piece, this.board(), this.whitesTurn());
+        break;
+      case PieceType.Rook:
+        moves = this.moves.rookMove(piece, this.board(), this.whitesTurn());
+        break;
+      case PieceType.Queen:
+        moves = this.moves.queenMove(piece, this.board(), this.whitesTurn());
+        break;
+      case PieceType.King:
+        moves = this.moves.kingMove(
+          piece,
+          this.board(),
+          this.whitesTurn() ? this.whitePieces() : this.blackPieces(),
+          this.whitesTurn()
+        );
+        break;
+    }
+    return moves;
   }
 
   move(start: Position, end: Position) {
@@ -251,7 +258,6 @@ export class BoardComponent {
     }
     this.whitePieces.set(this.whitesTurn() ? player : opponent);
     this.blackPieces.set(this.whitesTurn() ? opponent : player);
-
   }
 
   select(cell: Cell, position: Position) {
