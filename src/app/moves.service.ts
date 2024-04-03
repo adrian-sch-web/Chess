@@ -17,7 +17,9 @@ export class MovesService {
       if (piece.type != PieceType.King || Math.abs(move.position.column - piece.position.column) < 2) {
         return !this.check.kingInCheck([...playerPieces, { position: move.position, moved: true, type: piece.type }],
           opponentPieces.filter(a => move.position.row != a.position.row || move.position.column != a.position.column), whitesTurn);
-      } else {
+      }
+      //castle
+      else {
         return !this.check.kingInCheck([...playerPieces, piece], opponentPieces, whitesTurn) &&
           !this.check.kingInCheck([...playerPieces, {
             position: { row: piece.position.row, column: piece.position.column + Math.sign(move.position.column - piece.position.column) },
@@ -69,10 +71,12 @@ export class MovesService {
     let column = piece.position.column;
     if (board[row + direction][column].piece == PieceType.Empty) {
       moves.push(board[row + direction][column]);
+      //double move if start position
       if (!piece.moved && board[row + 2 * direction][column].piece == PieceType.Empty) {
         moves.push(board[row + 2 * direction][column]);
       }
     }
+    //diagonal pawn moves at captures
     if (
       column < 7
       && ((board[row + direction][column + 1].piece != PieceType.Empty
@@ -86,6 +90,7 @@ export class MovesService {
     ) {
       moves.push(board[row + direction][column - 1]);
     }
+    //en Passent check
     if (enPassent && enPassent.row == row && Math.abs(enPassent.column - column) == 1) {
       moves.push(board[enPassent.row + direction][enPassent.column]);
     }
@@ -106,10 +111,7 @@ export class MovesService {
     positions.push({ row: row - 2, column: column + 1 });
     positions.push({ row: row - 2, column: column - 1 });
     positions = positions.filter(position => {
-      return position.row >= 0
-        && position.row < 8
-        && position.column >= 0
-        && position.column < 8;
+      return this.inField(position.row, position.column);
     })
     for (let position of positions) {
       if (board[position.row][position.column].piece == PieceType.Empty || board[position.row][position.column].white != white) {
@@ -121,95 +123,27 @@ export class MovesService {
 
   bishopMove(piece: Piece, board: Cell[][], white: boolean): Cell[] {
     let moves: Cell[] = [];
-    let row = piece.position.row;
-    let column = piece.position.column;
-    for (let i = 1; row + i <= 7 && column + i <= 7; i++) {
-      if (board[row + i][column + i].piece == PieceType.Empty) {
-        moves.push(board[row + i][column + i]);
-        continue;
-      }
-      if (board[row + i][column + i].white != white) {
-        moves.push(board[row + i][column + i]);
-      }
-      break;
-    }
-    for (let i = 1; row + i <= 7 && column - i >= 0; i++) {
-      if (board[row + i][column - i].piece == PieceType.Empty) {
-        moves.push(board[row + i][column - i]);
-        continue;
-      }
-      if (board[row + i][column - i].white != white) {
-        moves.push(board[row + i][column - i]);
-      }
-      break;
-    }
-    for (let i = 1; row - i >= 0 && column + i <= 7; i++) {
-      if (board[row - i][column + i].piece == PieceType.Empty) {
-        moves.push(board[row - i][column + i]);
-        continue;
-      }
-      if (board[row - i][column + i].white != white) {
-        moves.push(board[row - i][column + i]);
-      }
-      break;
-    }
-    for (let i = 1; row - i >= 0 && column - i >= 0; i++) {
-      if (board[row - i][column - i].piece == PieceType.Empty) {
-        moves.push(board[row - i][column - i]);
-        continue;
-      }
-      if (board[row - i][column - i].white != white) {
-        moves.push(board[row - i][column - i]);
-      }
-      break;
-    }
+    //down right
+    moves.push(...this.straightLineMoves(board, piece.position, 1, 1, white));
+    //down left
+    moves.push(...this.straightLineMoves(board, piece.position, 1, -1, white));
+    //up right
+    moves.push(...this.straightLineMoves(board, piece.position, -1, 1, white));
+    //up left
+    moves.push(...this.straightLineMoves(board, piece.position, -1, -1, white));
     return moves;
   }
 
   rookMove(piece: Piece, board: Cell[][], white: boolean): Cell[] {
     let moves: Cell[] = [];
-    let row = piece.position.row;
-    let column = piece.position.column;
-    for (let i = 1; row + i <= 7; i++) {
-      if (board[row + i][column].piece == PieceType.Empty) {
-        moves.push(board[row + i][column]);
-        continue;
-      }
-      if (board[row + i][column].white != white) {
-        moves.push(board[row + i][column]);
-      }
-      break;
-    }
-    for (let i = 1; row - i >= 0; i++) {
-      if (board[row - i][column].piece == PieceType.Empty) {
-        moves.push(board[row - i][column]);
-        continue;
-      }
-      if (board[row - i][column].white != white) {
-        moves.push(board[row - i][column]);
-      }
-      break;
-    }
-    for (let i = 1; column + i <= 7; i++) {
-      if (board[row][column + i].piece == PieceType.Empty) {
-        moves.push(board[row][column + i]);
-        continue;
-      }
-      if (board[row][column + i].white != white) {
-        moves.push(board[row][column + i]);
-      }
-      break;
-    }
-    for (let i = 1; column - i >= 0; i++) {
-      if (board[row][column - i].piece == PieceType.Empty) {
-        moves.push(board[row][column - i]);
-        continue;
-      }
-      if (board[row][column - i].white != white) {
-        moves.push(board[row][column - i]);
-      }
-      break;
-    }
+    //up
+    moves.push(...this.straightLineMoves(board, piece.position, -1, 0, white));
+    //down
+    moves.push(...this.straightLineMoves(board, piece.position, 1, 0, white));
+    //left
+    moves.push(...this.straightLineMoves(board, piece.position, 0, -1, white));
+    //right
+    moves.push(...this.straightLineMoves(board, piece.position, 0, 1, white));
     return moves;
   }
 
@@ -227,10 +161,7 @@ export class MovesService {
         if (i == 0 && j == 0) {
           continue;
         }
-        if (row + i < 0 || row + i > 7) {
-          continue;
-        }
-        if (column + j < 0 || column + j > 7) {
+        if (!this.inField(row + i, column + 1)) {
           continue;
         }
         if (board[row + i][column + j].piece == PieceType.Empty
@@ -240,6 +171,7 @@ export class MovesService {
         }
       }
     }
+    // castle
     if (!piece.moved) {
       let rooks = pieces.filter(piece => piece.type == PieceType.Rook);;
       for (let rook of rooks) {
@@ -259,5 +191,79 @@ export class MovesService {
       }
     }
     return moves;
+  }
+
+  straightLineMoves(board: Cell[][], position: Position, rowDirection: number, colDirection: number, white: boolean): Cell[] {
+    let moves: Cell[] = [];
+    for (let i = 1; this.inField(position.row + i * rowDirection, position.column + i * colDirection); i++) {
+      if (board[position.row + i * rowDirection][position.column + i * colDirection].piece == PieceType.Empty) {
+        moves.push(board[position.row + i * rowDirection][position.column + i * colDirection]);
+        continue;
+      }
+      if (board[position.row + i * rowDirection][position.column + i * colDirection].white != white) {
+        moves.push(board[position.row + i * rowDirection][position.column + i * colDirection]);
+      }
+      break;
+    }
+    return moves;
+  }
+
+  inField(row: number, column: number): boolean {
+    if (row < 0 || row > 7 || column < 0 || column > 7) {
+      return false;
+    }
+    return true;
+  }
+
+  startPosition(white: boolean): Piece[] {
+    let pieces: Piece[] = [];
+    for (let i = 0; i < 8; i++) {
+      pieces.push({
+        position: { column: i, row: white ? 6 : 1 },
+        moved: false,
+        type: PieceType.Pawn
+      })
+    }
+    pieces.push({
+      position: { column: 0, row: white ? 7 : 0 },
+      moved: false,
+      type: PieceType.Rook
+    })
+    pieces.push({
+      position: { column: 1, row: white ? 7 : 0 },
+      moved: false,
+      type: PieceType.Knight
+    })
+    pieces.push({
+      position: { column: 2, row: white ? 7 : 0 },
+      moved: false,
+      type: PieceType.Bishop
+    })
+    pieces.push({
+      position: { column: 3, row: white ? 7 : 0 },
+      moved: false,
+      type: PieceType.Queen
+    })
+    pieces.push({
+      position: { column: 4, row: white ? 7 : 0 },
+      moved: false,
+      type: PieceType.King
+    })
+    pieces.push({
+      position: { column: 5, row: white ? 7 : 0 },
+      moved: false,
+      type: PieceType.Bishop
+    })
+    pieces.push({
+      position: { column: 6, row: white ? 7 : 0 },
+      moved: false,
+      type: PieceType.Knight
+    })
+    pieces.push({
+      position: { column: 7, row: white ? 7 : 0 },
+      moved: false,
+      type: PieceType.Rook
+    })
+    return pieces;
   }
 }

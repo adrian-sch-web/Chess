@@ -40,8 +40,8 @@ export class GameService {
     });
   }
 
-  whitePieces = signal<Piece[]>(this.check.startPosition(true));
-  blackPieces = signal<Piece[]>(this.check.startPosition(false));
+  whitePieces = signal<Piece[]>(this.moves.startPosition(true));
+  blackPieces = signal<Piece[]>(this.moves.startPosition(false));
   selectedCell = signal<Position | undefined>(undefined);
   whitesTurn = signal<boolean>(true);
   movesSinceChange = signal<number>(0);
@@ -181,7 +181,7 @@ export class GameService {
       this.movesSinceChange.set(1);
       this.boardStates.set(new Map());
     } else {
-      this.movesSinceChange.update(a => a + 1)
+      this.movesSinceChange.update(moveCount => moveCount + 1)
     }
     opponent = opponent.filter(piece => piece.position.row != end.row || piece.position.column != end.column);
     player = player.filter(piece => piece.position.row != start.row || piece.position.column != start.column);
@@ -280,8 +280,8 @@ export class GameService {
   }
 
   restart() {
-    this.whitePieces.set(this.check.startPosition(true));
-    this.blackPieces.set(this.check.startPosition(false));
+    this.whitePieces.set(this.moves.startPosition(true));
+    this.blackPieces.set(this.moves.startPosition(false));
     this.selectedCell.set(undefined);
     this.whitesTurn.set(true);
     this.movesSinceChange.set(0);
