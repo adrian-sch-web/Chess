@@ -2,13 +2,65 @@ import { Injectable } from '@angular/core';
 import { Cell } from './Cell';
 import { Piece, PieceType } from './Piece';
 import { Position } from './Position';
+import { CheckService } from './check.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MovesService {
 
-  constructor() { }
+  constructor(private check: CheckService) { }
+
+  getPossibleMoves(piece: Piece, board: Cell[][], playerPieces: Piece[], opponentPieces: Piece[], whitesTurn: boolean, enPassent?: Position): Cell[] {
+    let moves: Cell[] = this.allPotentialMoves(piece, board, playerPieces, whitesTurn, enPassent);
+    return moves.filter(move => {
+      if (piece.type != PieceType.King || Math.abs(move.position.column - piece.position.column) < 2) {
+        return !this.check.kingInCheck([...playerPieces, { position: move.position, moved: true, type: piece.type }],
+          opponentPieces.filter(a => move.position.row != a.position.row || move.position.column != a.position.column), whitesTurn);
+      } else {
+        return !this.check.kingInCheck([...playerPieces, piece], opponentPieces, whitesTurn) &&
+          !this.check.kingInCheck([...playerPieces, {
+            position: { row: piece.position.row, column: piece.position.column + Math.sign(move.position.column - piece.position.column) },
+            moved: true,
+            type: piece.type
+          }],
+            opponentPieces,
+            whitesTurn) &&
+          !this.check.kingInCheck([...playerPieces, { position: move.position, moved: true, type: piece.type }], opponentPieces, whitesTurn);
+      }
+    });
+  }
+
+
+  allPotentialMoves(piece: Piece, board: Cell[][], playerPieces: Piece[], whitesTurn: boolean, enPassent?: Position): Cell[] {
+    let moves: Cell[] = [];
+    switch (piece.type) {
+      case PieceType.Pawn:
+        moves = this.pawnMove(piece, board, whitesTurn, enPassent);
+        break;
+      case PieceType.Knight:
+        moves = this.knightMove(piece, board, whitesTurn);
+        break;
+      case PieceType.Bishop:
+        moves = this.bishopMove(piece, board, whitesTurn);
+        break;
+      case PieceType.Rook:
+        moves = this.rookMove(piece, board, whitesTurn);
+        break;
+      case PieceType.Queen:
+        moves = this.queenMove(piece, board, whitesTurn);
+        break;
+      case PieceType.King:
+        moves = this.kingMove(
+          piece,
+          board,
+          playerPieces,
+          whitesTurn
+        );
+        break;
+    }
+    return moves;
+  }
 
   pawnMove(piece: Piece, board: Cell[][], white: boolean, enPassent?: Position): Cell[] {
     let moves: Cell[] = [];

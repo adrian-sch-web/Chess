@@ -1,28 +1,27 @@
 <div class="board-container">
-    <div class="promote" [style.display]="promoteColumn != undefined?'block':'none'"
+    <div class="promote" [style.display]="promoteColumn() != undefined?'block':'none'"
         [style.top]="whitesTurn()?'':'693px'">
-        <button (click)="promote(5)">
-            <app-piece [piece]="5" [white]="whitesTurn()"></app-piece>
+        @for(piece of promotePieces; track $index){
+        <button (click)="promote(piece)">
+            <app-piece [piece]="piece" [white]="whitesTurn()"></app-piece>
         </button>
-        <button (click)="promote(4)">
-            <app-piece [piece]="4" [white]="whitesTurn()"></app-piece>
-        </button>
-        <button (click)="promote(3)">
-            <app-piece [piece]="3" [white]="whitesTurn()"></app-piece>
-        </button>
-        <button (click)="promote(2)">
-            <app-piece [piece]="2" [white]="whitesTurn()"></app-piece>
-        </button>
+        }
+    </div>
+    <div>
+        <button (click)="restart()">Restart</button>
+        <button (click)="flip = !flip">flip board</button>
     </div>
     <div class="board">
         @for(row of board(); let rowId = $index; track rowId){
         <div class="row">
             @for(cell of row; let colId = $index; track colId){
             <div [style.backgroundColor]="rowId % 2 == colId % 2 ? 'white' : 'grey'" class="cell"
-                (click)="select(cell, { row: rowId, column: colId })">
-                <app-piece [piece]="cell.piece" [white]="cell.white"
-                    [selected]="this.selectedCell()?.row == rowId && this.selectedCell()?.column == colId  && selectedPossibleMoves().length > 0"
-                    [possibleMove]="selectedPossibleMoves().indexOf(cell) != -1">
+                (click)="select(cell)">
+                <app-piece [piece]="cell.piece" [white]="cell.white" [selected]="
+                    this.selectedCell()?.row == cell.position.row &&
+                    selectedCell()?.column == cell.position.column  &&
+                    selectedPossibleMoves().length > 0
+                    " [possibleMove]="selectedPossibleMoves().indexOf(cell) != -1">
                 </app-piece>
             </div>
             }
