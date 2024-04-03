@@ -11,16 +11,16 @@ export class CheckService {
 
   kingInCheck(player: Piece[], opponent: Piece[], white: boolean): boolean {
     let opponentDirection = white ? -1 : 1;
-    let king = player.find(piece => piece.type == PieceType.King);
-    if (king == undefined) {
+    let king = player.find(piece => piece.type === PieceType.King);
+    if (king === undefined) {
       return true;
     }
     for (let opponentPiece of opponent) {
       switch (opponentPiece.type) {
         case PieceType.Pawn:
           if (
-            Math.abs(opponentPiece.position.column - king.position.column) == 1
-            && king.position.row + opponentDirection == opponentPiece.position.row
+            Math.abs(opponentPiece.position.column - king.position.column) === 1
+            && king.position.row + opponentDirection === opponentPiece.position.row
           ) {
             return true;
           }
@@ -62,23 +62,23 @@ export class CheckService {
     let pieceColumn = opponent.position.column;
     let kingRow = king.position.row;
     let kingColumn = king.position.column;
-    return (pieceRow == kingRow + 1 && opponent.position.row == king.position.row + 2)
-      || (pieceRow == kingRow + 1 && pieceColumn == kingColumn - 2)
-      || (pieceRow == kingRow - 1 && pieceColumn == kingColumn + 2)
-      || (pieceRow == kingRow - 1 && pieceColumn == kingColumn - 2)
-      || (pieceRow == kingRow + 2 && pieceColumn == kingColumn + 1)
-      || (pieceRow == kingRow + 2 && pieceColumn == kingColumn - 1)
-      || (pieceRow == kingRow - 2 && pieceColumn == kingColumn + 1)
-      || (pieceRow == kingRow - 2 && pieceColumn == kingColumn - 1)
+    return (pieceRow === kingRow + 1 && opponent.position.row === king.position.row + 2)
+      || (pieceRow === kingRow + 1 && pieceColumn === kingColumn - 2)
+      || (pieceRow === kingRow - 1 && pieceColumn === kingColumn + 2)
+      || (pieceRow === kingRow - 1 && pieceColumn === kingColumn - 2)
+      || (pieceRow === kingRow + 2 && pieceColumn === kingColumn + 1)
+      || (pieceRow === kingRow + 2 && pieceColumn === kingColumn - 1)
+      || (pieceRow === kingRow - 2 && pieceColumn === kingColumn + 1)
+      || (pieceRow === kingRow - 2 && pieceColumn === kingColumn - 1)
   }
 
   bishopCheckTest(king: Piece, opponent: Piece, pieces: Piece[]): boolean {
-    if (Math.abs(king.position.row - opponent.position.row) == Math.abs(king.position.column - opponent.position.column)) {
+    if (Math.abs(king.position.row - opponent.position.row) === Math.abs(king.position.column - opponent.position.column)) {
       let rowDif = opponent.position.row - king.position.row;
       let colDif = opponent.position.column - king.position.column;
       for (let i = 1; i < Math.abs(rowDif); i++) {
-        if (pieces.some(piece => king.position.row + i * Math.sign(rowDif) == piece.position.row
-          && king.position.column + i * Math.sign(colDif) == piece.position.column
+        if (pieces.some(piece => king.position.row + i * Math.sign(rowDif) === piece.position.row
+          && king.position.column + i * Math.sign(colDif) === piece.position.column
         )) {
           return false;
         }
@@ -89,12 +89,12 @@ export class CheckService {
   }
 
   RookCheckTest(king: Piece, opponent: Piece, pieces: Piece[]): boolean {
-    if (king.position.row == opponent.position.row || king.position.column == opponent.position.column) {
+    if (king.position.row === opponent.position.row || king.position.column === opponent.position.column) {
       let rowDif = opponent.position.row - king.position.row;
       let colDif = opponent.position.column - king.position.column;
       for (let i = 1; i < Math.max(Math.abs(rowDif), Math.abs(colDif)); i++) {
-        if (pieces.some(piece => king.position.row + i * Math.sign(rowDif) == piece.position.row
-          && king.position.column + i * Math.sign(colDif) == piece.position.column
+        if (pieces.some(piece => king.position.row + i * Math.sign(rowDif) === piece.position.row
+          && king.position.column + i * Math.sign(colDif) === piece.position.column
         )) {
           return false;
         }
@@ -108,13 +108,13 @@ export class CheckService {
     if (pieces.length > 2) {
       return false;
     }
-    if (pieces.length == 1) {
+    if (pieces.length === 1) {
       return true;
     }
-    if (pieces.findIndex(a => a.type == PieceType.Knight) != -1) {
+    if (pieces.findIndex(a => a.type === PieceType.Knight) !== -1) {
       return true;
     }
-    if (pieces.findIndex(a => a.type == PieceType.Bishop) != -1) {
+    if (pieces.findIndex(a => a.type === PieceType.Bishop) !== -1) {
       return true;
     }
     return false;

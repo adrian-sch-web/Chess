@@ -53,10 +53,12 @@ export class GameService {
   // portable game notation
   pgn: string = "";
 
+  playerPieces = computed<Piece[]>(() => this.whitesTurn() ? this.whitePieces() : this.blackPieces());
+  opponentPieces = computed<Piece[]>(() => this.whitesTurn() ? this.blackPieces() : this.whitePieces());
+
   state = computed<State>(() => {
-    if (this.possibleMoves().size == 0) {
-      if (this.check.kingInCheck(this.whitesTurn() ? this.whitePieces() : this.blackPieces(),
-        this.whitesTurn() ? this.blackPieces() : this.whitePieces(), this.whitesTurn())) {
+    if (this.possibleMoves().size === 0) {
+      if (this.check.kingInCheck(this.playerPieces(), this.opponentPieces(), this.whitesTurn())) {
         return State.CheckMate;
       }
       return State.StaleMate;
@@ -65,7 +67,7 @@ export class GameService {
       return State.MovesRule;
     }
     for (var value of this.boardStates().values()) {
-      if (value == 3) {
+      if (value === 3) {
         return State.ThreeFoldRepitition
       }
     }
@@ -80,14 +82,12 @@ export class GameService {
 
   possibleMoves = computed<Map<Cell, Cell[]>>(() => {
     let moves = new Map<Cell, Cell[]>();
-    let playerPieces = this.whitesTurn() ? this.whitePieces() : this.blackPieces();
-    let opponentPieces = this.whitesTurn() ? this.blackPieces() : this.whitePieces();
-    for (let piece of playerPieces) {
+    for (let piece of this.playerPieces()) {
       let pieceMoves = this.moves.getPossibleMoves(
         piece,
         this.board(),
-        playerPieces.filter(a => a.position.row != piece.position.row || a.position.column != piece.position.column),
-        opponentPieces,
+        this.playerPieces().filter(a => a.position.row !== piece.position.row || a.position.column !== piece.position.column),
+        this.opponentPieces(),
         this.whitesTurn(),
         this.enPassent
       );
@@ -101,10 +101,10 @@ export class GameService {
   selectedPossibleMoves = computed<Cell[]>(() => {
     let temp: Cell[] | undefined;
     let select = this.selectedCell();
-    if (select != undefined) {
+    if (select !== undefined) {
       temp = this.possibleMoves().get(this.board()[select.row][select.column]);
     }
-    if (temp != undefined) {
+    if (temp !== undefined) {
       return temp;
     }
     return [];
@@ -132,7 +132,7 @@ export class GameService {
     let end: Position = { row: this.whitesTurn() ? 0 : 7, column: this.promoteColumn! };
     this.enPassent = undefined;
     this.pgn += " " + (this.whitesTurn() ? this.turnCount + "." : "") +
-      (start.column != end.column ? this.notation.columnLetter(start.column) + "x" : "")
+      (start.column !== end.column ? this.notation.columnLetter(start.column) + "x" : "")
       + this.notation.cellName(end) + "=" + this.notation.letter(type);
     this.executeMove(start, end, type);
     this.promoteColumn = undefined;
@@ -142,18 +142,18 @@ export class GameService {
 
   move(start: Position, end: Position) {
     this.enPassent = undefined;
-    if (this.board()[start.row][start.column].piece == PieceType.Pawn) {
-      if (Math.abs(end.row - start.row) != 1) {
+    if (this.board()[start.row][start.column].piece === PieceType.Pawn) {
+      if (Math.abs(end.row - start.row) !== 1) {
         this.enPassent = end;
       }
-      if (start.column != end.column && this.board()[end.row][end.column].piece == PieceType.Empty) {
+      if (start.column !== end.column && this.board()[end.row][end.column].piece === PieceType.Empty) {
         if (this.whitesTurn()) {
           this.blackPieces.update(pieces => [...pieces.filter(piece =>
-            piece.position.row != start.row || piece.position.column != end.column
+            piece.position.row !== start.row || piece.position.column !== end.column
           )])
         } else {
           this.whitePieces.update(pieces => [...pieces.filter(piece =>
-            piece.position.row != start.row || piece.position.column != end.column
+            piece.position.row !== start.row || piece.position.column !== end.column
           )])
         }
       }
@@ -166,33 +166,30 @@ export class GameService {
   }
 
   executeMove(start: Position, end: Position, type: PieceType) {
-    let castle = type == PieceType.King && Math.abs(start.column - end.column) > 1;
-    let player: Piece[];
-    let opponent: Piece[];
-    if (type == PieceType.Empty) {
+    let castle = type === PieceType.King && Math.abs(start.column - end.column) > 1;
+    if (type === PieceType.Empty) {
       return;
     }
-    player = this.whitesTurn() ? this.whitePieces() : this.blackPieces();
-    opponent = this.whitesTurn() ? this.blackPieces() : this.whitePieces();
-    let toMove = player.find(piece => piece.position.row == start.row && piece.position.column == start.column);
-    if (toMove?.type == PieceType.Pawn ||
-      ((toMove?.type == PieceType.King || toMove?.type == PieceType.Rook) && !toMove.moved) ||
-      this.board()[end.row][end.column].piece != PieceType.Empty) {
+    let toMove = this.playerPieces().find(piece => piece.position.row === start.row && piece.position.column === start.column);
+    if (toMove?.type === PieceType.Pawn ||
+      ((toMove?.type === PieceType.King || toMove?.type === PieceType.Rook) && !toMove.moved) ||
+      this.board()[end.row][end.column].piece !== PieceType.Empty) {
       this.movesSinceChange.set(1);
       this.boardStates.set(new Map());
     } else {
       this.movesSinceChange.update(moveCount => moveCount + 1)
     }
-    opponent = opponent.filter(piece => piece.position.row != end.row || piece.position.column != end.column);
-    player = player.filter(piece => piece.position.row != start.row || piece.position.column != start.column);
+
+    let player = this.playerPieces().filter(piece => piece.position.row !== start.row || piece.position.column !== start.column);
+    let opponent = this.opponentPieces().filter(piece => piece.position.row !== end.row || piece.position.column !== end.column);
     player.push({ position: end, moved: true, type: type });
     if (castle) {
       if (start.column > end.column) {
-        player = player.filter(piece => piece.position.row != end.row || piece.position.column != 0);
+        player = player.filter(piece => piece.position.row !== end.row || piece.position.column !== 0);
         player.push({ position: { row: end.row, column: end.column + 1 }, type: PieceType.Rook, moved: true });
       }
       else {
-        player = player.filter(piece => piece.position.row != end.row || piece.position.column != 7);
+        player = player.filter(piece => piece.position.row !== end.row || piece.position.column !== 7);
         player.push({ position: { row: end.row, column: end.column - 1 }, type: PieceType.Rook, moved: true });
       }
     }
@@ -201,13 +198,13 @@ export class GameService {
   }
 
   select(cell: Cell) {
-    if (this.state() != State.Running) {
+    if (this.state() !== State.Running) {
       return;
     }
-    if (this.selectedCell() != undefined) {
-      if (this.selectedPossibleMoves().indexOf(cell) != -1) {
-        if (this.board()[this.selectedCell()!.row][this.selectedCell()!.column].piece == PieceType.Pawn &&
-          (cell.position.row == 0 || cell.position.row == 7)) {
+    if (this.selectedCell() !== undefined) {
+      if (this.selectedPossibleMoves().indexOf(cell) !== -1) {
+        if (this.board()[this.selectedCell()!.row][this.selectedCell()!.column].piece === PieceType.Pawn &&
+          (cell.position.row === 0 || cell.position.row === 7)) {
           this.promoteColumn = cell.position.column;
           return;
         }
@@ -222,49 +219,44 @@ export class GameService {
 
   createPgn(start: Position, end: Position, type: PieceType): string {
     return " " + (this.whitesTurn() ? this.turnCount + "." : "") +
-      (type == PieceType.King && end.column - start.column > 1 ? "O-O" :
-        type == PieceType.King && start.column - end.column > 1 ? "O-O-O" : (
+      (type === PieceType.King && end.column - start.column > 1 ? "O-O" :
+        type === PieceType.King && start.column - end.column > 1 ? "O-O-O" : (
           (
-            type == PieceType.Pawn ?
-              (start.column != end.column ? this.notation.columnLetter(start.column) + "x" : "") :
-              (this.notation.letter(type) + this.solveAmbiguity(start, end, type) + (this.board()[end.row][end.column].piece == PieceType.Empty ? "" : "x"))
+            type === PieceType.Pawn ?
+              (start.column !== end.column ? this.notation.columnLetter(start.column) + "x" : "") :
+              (this.notation.letter(type) + this.solveAmbiguity(start, end, type) + (this.board()[end.row][end.column].piece === PieceType.Empty ? "" : "x"))
           )
           + this.notation.cellName(end)));
   }
 
   solveAmbiguity(start: Position, end: Position, type: PieceType): string {
-    let player = this.whitesTurn() ? this.whitePieces() : this.blackPieces();
-    player = player.filter(a => a.type == type);
+    let player = this.playerPieces().filter(a => a.type === type);
     player = player.filter(piece => {
-      let playerPieces = this.whitesTurn() ? this.whitePieces() : this.blackPieces();
-      let opponentPieces = this.whitesTurn() ? this.blackPieces() : this.whitePieces();
       return this.moves.getPossibleMoves(
         piece,
         this.board(),
-        playerPieces.filter(a => a.position.row != piece.position.row || a.position.column != piece.position.column),
-        opponentPieces,
+        this.playerPieces().filter(a => a.position.row !== piece.position.row || a.position.column !== piece.position.column),
+        this.opponentPieces(),
         this.whitesTurn(),
         this.enPassent
-      ).some(move => move.position.row == end.row && move.position.column == end.column);
+      ).some(move => move.position.row === end.row && move.position.column === end.column);
     })
-    if (player.length == 1) {
+    if (player.length === 1) {
       return "";
     }
-    let sameColumn = player.filter(piece => piece.position.column == start.column);
-    if (sameColumn.length == 1) {
+    let sameColumn = player.filter(piece => piece.position.column === start.column);
+    if (sameColumn.length === 1) {
       return this.notation.columnLetter(start.column);
     }
-    let sameRow = player.filter(piece => piece.position.row == start.row)
-    if (sameRow.length == 1) {
+    let sameRow = player.filter(piece => piece.position.row === start.row)
+    if (sameRow.length === 1) {
       return "" + (8 - start.row);
     }
     return this.notation.cellName(start);
   }
 
   pgnAddCheck() {
-    let player = this.whitesTurn() ? this.whitePieces() : this.blackPieces();
-    let opponent = this.whitesTurn() ? this.blackPieces() : this.whitePieces();
-    if (this.state() != State.CheckMate && this.check.kingInCheck(player, opponent, this.whitesTurn())) {
+    if (this.state() !== State.CheckMate && this.check.kingInCheck(this.playerPieces(), this.opponentPieces(), this.whitesTurn())) {
       this.pgn += "+";
     }
   }
