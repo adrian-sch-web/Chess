@@ -6,13 +6,15 @@ import { PieceComponent } from '../piece/piece.component';
 import { State } from '../State';
 import { GameOverComponent } from '../game-over/game-over.component';
 import { GameService } from '../game.service';
+import { JsonPipe } from '@angular/common';
 
 @Component({
   selector: 'app-board',
   standalone: true,
   imports: [
     PieceComponent,
-    GameOverComponent
+    GameOverComponent,
+    JsonPipe
   ],
   templateUrl: './board.component.html',
   styleUrl: './board.component.scss'
@@ -75,5 +77,9 @@ export class BoardComponent {
 
   getPgnSplit(): string[] {
     return this.game.pgn.split(' ');
+  }
+
+  boardStates():Map<string,number>{
+    return this.game.boardStates();
   }
 }

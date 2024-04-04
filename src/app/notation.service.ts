@@ -20,17 +20,17 @@ export class NotationService {
   letter(piece: PieceType): string {
     switch (piece) {
       case PieceType.Knight:
-        return "N";
+        return 'N';
       case PieceType.Bishop:
-        return "B";
+        return 'B';
       case PieceType.Rook:
-        return "R";
+        return 'R';
       case PieceType.Queen:
-        return "Q";
+        return 'Q';
       case PieceType.King:
-        return "K";
+        return 'K';
       default:
-        return "";
+        return '';
     }
   }
 }

@@ -1,4 +1,4 @@
-import { Component, Input, input } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { State } from '../State';
 
 @Component({
@@ -11,4 +11,18 @@ import { State } from '../State';
 export class GameOverComponent {
   @Input() white?: boolean;
   @Input() reason?: State;
+
+  Reason(): string {
+    switch (this.reason) {
+      case State.StaleMate:
+        return 'Stalemate';
+      case State.InsufficientMaterial:
+        return 'Insufficient Material';
+      case State.MovesRule:
+        return '40 Moves Rule';
+      case State.ThreeFoldRepitition:
+        return 'Three Fold Repitition';
+    }
+    return '';
+  }
 }
