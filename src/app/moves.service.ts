@@ -159,7 +159,7 @@ export class MovesService {
         if (i === 0 && j === 0) {
           continue;
         }
-        if (!this.inField(row + i, column + 1)) {
+        if (!this.inField(row + i, column + j)) {
           continue;
         }
         if (board[row + i][column + j].piece === PieceType.Empty
