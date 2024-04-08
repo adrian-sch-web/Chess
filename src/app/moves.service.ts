@@ -19,17 +19,15 @@ export class MovesService {
           opponentPieces.filter(a => move.position.row !== a.position.row || move.position.column !== a.position.column), whitesTurn);
       }
       //castle
-      else {
-        return !this.check.kingInCheck([...playerPieces, piece], opponentPieces, whitesTurn) &&
-          !this.check.kingInCheck([...playerPieces, {
-            position: { row: piece.position.row, column: piece.position.column + Math.sign(move.position.column - piece.position.column) },
-            moved: true,
-            type: piece.type
-          }],
-            opponentPieces,
-            whitesTurn) &&
-          !this.check.kingInCheck([...playerPieces, { position: move.position, moved: true, type: piece.type }], opponentPieces, whitesTurn);
-      }
+      return !this.check.kingInCheck([...playerPieces, piece], opponentPieces, whitesTurn) &&
+        !this.check.kingInCheck([...playerPieces, {
+          position: { row: piece.position.row, column: piece.position.column + Math.sign(move.position.column - piece.position.column) },
+          moved: true,
+          type: piece.type
+        }],
+          opponentPieces,
+          whitesTurn) &&
+        !this.check.kingInCheck([...playerPieces, { position: move.position, moved: true, type: piece.type }], opponentPieces, whitesTurn);
     });
   }
 

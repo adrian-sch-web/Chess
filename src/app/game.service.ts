@@ -141,7 +141,6 @@ export class GameService {
   }
 
   move(start: Position, end: Position) {
-    console.log(this.boardStates());
     this.enPassent = undefined;
     if (this.board()[start.row][start.column].piece === PieceType.Pawn) {
       if (Math.abs(end.row - start.row) !== 1) {

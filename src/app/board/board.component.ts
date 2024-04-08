@@ -6,15 +6,13 @@ import { PieceComponent } from '../piece/piece.component';
 import { State } from '../State';
 import { GameOverComponent } from '../game-over/game-over.component';
 import { GameService } from '../game.service';
-import { JsonPipe } from '@angular/common';
 
 @Component({
   selector: 'app-board',
   standalone: true,
   imports: [
     PieceComponent,
-    GameOverComponent,
-    JsonPipe
+    GameOverComponent
   ],
   templateUrl: './board.component.html',
   styleUrl: './board.component.scss'
