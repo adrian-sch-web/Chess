@@ -10,6 +10,8 @@
     <div>
         <button (click)="restart()">Restart</button>
         <button (click)="flip = !flip">flip board</button>
+        <button (click)="saveGame()">save</button>
+        <button (click)="loadGame()">load</button>
     </div>
     <div class="board">
         @for(row of board(); let rowId = $index; track rowId){
