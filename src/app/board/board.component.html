@@ -1,46 +1,54 @@
-<div class="board-container">
-    <div class="promote" [style.display]="promoteColumn() != undefined?'block':'none'"
-        [style.top]="whitesTurn()?'':'693px'">
-        @for(piece of promotePieces; track $index){
-        <button (click)="promote(piece)">
-            <app-piece [piece]="piece" [white]="whitesTurn()"></app-piece>
-        </button>
+<div class="board-view-container">
+    <div class="buttons">
+        <button mat-raised-button (click)="restart()">Restart</button>
+        <button mat-raised-button (click)="flip = !flip">flip board</button>
+        <button mat-raised-button (click)="saveGame()">save</button>
+        <button mat-raised-button (click)="loadGame(saveIdInput.value); saveIdInput.value = ''">load</button>
+        <input matInput type="text" #saveIdInput/>
+        @if(saveId().length > 0){
+            <div>Saved under the following Id:</div>
+            <div>{{saveId()}}</div>
+            <div>Copy to continue from this point</div>
         }
     </div>
-    <div class="board">
-        @for(row of board(); let rowId = $index; track rowId){
-        <div class="row">
-            @for(cell of row; let colId = $index; track colId){
-            <div [style.backgroundColor]="rowId % 2 == colId % 2 ? 'white' : 'grey'" class="cell"
-                (click)="select(cell)">
-                <app-piece [piece]="cell.piece" [white]="cell.white" [selected]="
-                    this.selectedCell()?.row == cell.position.row &&
-                    selectedCell()?.column == cell.position.column  &&
-                    selectedPossibleMoves().length > 0
-                    " [possibleMove]="selectedPossibleMoves().indexOf(cell) != -1">
-                </app-piece>
+    <div class="board-container">
+        <div class="promote" [style.display]="promoteColumn() != undefined?'block':'none'"
+            [style.top]="whitesTurn()?'':'693px'">
+            @for(piece of promotePieces; track $index){
+            <button (click)="promote(piece)">
+                <app-piece [piece]="piece" [white]="whitesTurn()"></app-piece>
+            </button>
+            }
+        </div>
+        <div class="board">
+            @for(row of board(); let rowId = $index; track rowId){
+            <div class="row">
+                @for(cell of row; let colId = $index; track colId){
+                <div [style.backgroundColor]="rowId % 2 == colId % 2 ? 'white' : 'grey'" class="cell"
+                    (click)="select(cell)">
+                    <app-piece [piece]="cell.piece" [white]="cell.white" [selected]="
+                        this.selectedCell()?.row == cell.position.row &&
+                        selectedCell()?.column == cell.position.column  &&
+                        selectedPossibleMoves().length > 0
+                        " [possibleMove]="selectedPossibleMoves().indexOf(cell) != -1">
+                    </app-piece>
+                </div>
+                }
             </div>
             }
         </div>
+        @if(state() != 0) {
+        <app-game-over [white]="whitesTurn()" [reason]="state()"></app-game-over>
         }
     </div>
-    <div class="buttons">
-        <button mat-raised-button (click)="saveGame()">save</button>
-        <button mat-raised-button (click)="loadGame()">load</button>
-        <button mat-raised-button (click)="restart()">Restart</button>
-        <button mat-raised-button (click)="flip = !flip">flip board</button>
-    </div>
-    @if(state() != 0) {
-    <app-game-over [white]="whitesTurn()" [reason]="state()"></app-game-over>
-    }
-</div>
-<div class="moves-container">
-    <h3>Moves:</h3>
-    <div class="moves">
-        @for(move of getPgnSplit(); track $index){
-        <div [style.grid-row]="pgnMoveRow($index)">
-            {{move}}
+    <div class="moves-container">
+        <h3>Moves:</h3>
+        <div class="moves">
+            @for(move of getPgnSplit(); track $index){
+            <div [style.grid-row]="pgnMoveRow($index)">
+                {{move}}
+            </div>
+            }
         </div>
-        }
     </div>
 </div>

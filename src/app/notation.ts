@@ -3,7 +3,7 @@ import { Position } from './data-objects/Position';
 
 
 
-export class NotationService {
+export class Notation {
 
   constructor() { }
 

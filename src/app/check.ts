@@ -1,7 +1,7 @@
 import { Piece, PieceType } from './data-objects/Piece';
 import { Cell } from './data-objects/Cell';
 
-export class CheckService {
+export class Check {
 
   constructor() { }
 

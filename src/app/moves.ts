@@ -1,10 +1,10 @@
 import { Cell } from './data-objects/Cell';
 import { Piece, PieceType } from './data-objects/Piece';
 import { Position } from './data-objects/Position';
-import { CheckService } from './check.service';
+import { Check } from './check';
 
 
-export class MovesService {
+export class Moves {
 
   constructor() { }
 
@@ -12,19 +12,19 @@ export class MovesService {
     let moves: Cell[] = this.allPotentialMoves(piece, board, playerPieces, whitesTurn, enPassent);
     return moves.filter(move => {
       if (piece.type !== PieceType.King || Math.abs(move.position.column - piece.position.column) < 2) {
-        return !CheckService.kingInCheck([...playerPieces, { position: move.position, moved: true, type: piece.type }],
+        return !Check.kingInCheck([...playerPieces, { position: move.position, moved: true, type: piece.type }],
           opponentPieces.filter(a => move.position.row !== a.position.row || move.position.column !== a.position.column), whitesTurn);
       }
       //castle
-      return !CheckService.kingInCheck([...playerPieces, piece], opponentPieces, whitesTurn) &&
-        !CheckService.kingInCheck([...playerPieces, {
+      return !Check.kingInCheck([...playerPieces, piece], opponentPieces, whitesTurn) &&
+        !Check.kingInCheck([...playerPieces, {
           position: { row: piece.position.row, column: piece.position.column + Math.sign(move.position.column - piece.position.column) },
           moved: true,
           type: piece.type
         }],
           opponentPieces,
           whitesTurn) &&
-        !CheckService.kingInCheck([...playerPieces, { position: move.position, moved: true, type: piece.type }], opponentPieces, whitesTurn);
+        !Check.kingInCheck([...playerPieces, { position: move.position, moved: true, type: piece.type }], opponentPieces, whitesTurn);
     });
   }
 

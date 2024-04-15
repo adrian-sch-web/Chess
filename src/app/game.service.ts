@@ -1,7 +1,7 @@
 import { Injectable, computed, effect, signal } from '@angular/core';
-import { CheckService } from './check.service';
-import { MovesService } from './moves.service';
-import { NotationService } from './notation.service';
+import { Check } from './check';
+import { Moves } from './moves';
+import { Notation } from './notation';
 import { State } from './State';
 import { Cell } from './data-objects/Cell';
 import { Piece, PieceType } from './data-objects/Piece';
@@ -36,8 +36,8 @@ export class GameService {
     });
   }
 
-  whitePieces = signal<Piece[]>(MovesService.startPosition(true));
-  blackPieces = signal<Piece[]>(MovesService.startPosition(false));
+  whitePieces = signal<Piece[]>(Moves.startPosition(true));
+  blackPieces = signal<Piece[]>(Moves.startPosition(false));
   selectedCell = signal<Position | undefined>(undefined);
   whitesTurn = signal<boolean>(true);
   movesSinceChange = signal<number>(0);
@@ -54,7 +54,7 @@ export class GameService {
 
   state = computed<State>(() => {
     if (this.possibleMoves().size === 0) {
-      if (CheckService.kingInCheck(this.playerPieces(), this.opponentPieces(), this.whitesTurn())) {
+      if (Check.kingInCheck(this.playerPieces(), this.opponentPieces(), this.whitesTurn())) {
         return State.CheckMate;
       }
       return State.StaleMate;
@@ -68,8 +68,8 @@ export class GameService {
       }
     }
     if (
-      CheckService.insufficienMaterialCheck(this.whitePieces()) &&
-      CheckService.insufficienMaterialCheck(this.blackPieces())
+      Check.insufficienMaterialCheck(this.whitePieces()) &&
+      Check.insufficienMaterialCheck(this.blackPieces())
     ) {
       return State.InsufficientMaterial;
     }
@@ -79,7 +79,7 @@ export class GameService {
   possibleMoves = computed<Map<Cell, Cell[]>>(() => {
     let moves = new Map<Cell, Cell[]>();
     for (let piece of this.playerPieces()) {
-      let pieceMoves = MovesService.getPossibleMoves(
+      let pieceMoves = Moves.getPossibleMoves(
         piece,
         this.board(),
         this.playerPieces().filter(a => a.position.row !== piece.position.row || a.position.column !== piece.position.column),
@@ -128,8 +128,8 @@ export class GameService {
     let end: Position = { row: this.whitesTurn() ? 0 : 7, column: this.promoteColumn! };
     this.enPassent = undefined;
     this.pgn += ' ' + (this.whitesTurn() ? this.turnCount + '.' : '') +
-      (start.column !== end.column ? NotationService.columnLetter(start.column) + 'x' : '')
-      + NotationService.cellName(end) + '=' + NotationService.letter(type);
+      (start.column !== end.column ? Notation.columnLetter(start.column) + 'x' : '')
+      + Notation.cellName(end) + '=' + Notation.letter(type);
     this.executeMove(start, end, type);
     this.promoteColumn = undefined;
     this.selectedCell.set(undefined);
@@ -235,16 +235,16 @@ export class GameService {
         type === PieceType.King && start.column - end.column > 1 ? 'O-O-O' : (
           (
             type === PieceType.Pawn ?
-              (start.column !== end.column ? NotationService.columnLetter(start.column) + 'x' : '') :
-              (NotationService.letter(type) + this.solveAmbiguity(start, end, type) + (this.board()[end.row][end.column].piece === PieceType.Empty ? '' : 'x'))
+              (start.column !== end.column ? Notation.columnLetter(start.column) + 'x' : '') :
+              (Notation.letter(type) + this.solveAmbiguity(start, end, type) + (this.board()[end.row][end.column].piece === PieceType.Empty ? '' : 'x'))
           )
-          + NotationService.cellName(end)));
+          + Notation.cellName(end)));
   }
 
   solveAmbiguity(start: Position, end: Position, type: PieceType): string {
     let player = this.playerPieces().filter(a => a.type === type);
     player = player.filter(piece => {
-      return MovesService.getPossibleMoves(
+      return Moves.getPossibleMoves(
         piece,
         this.board(),
         this.playerPieces().filter(a => a.position.row !== piece.position.row || a.position.column !== piece.position.column),
@@ -258,23 +258,23 @@ export class GameService {
     }
     let sameColumn = player.filter(piece => piece.position.column === start.column);
     if (sameColumn.length === 1) {
-      return NotationService.columnLetter(start.column);
+      return Notation.columnLetter(start.column);
     }
     let sameRow = player.filter(piece => piece.position.row === start.row)
     if (sameRow.length === 1) {
       return '' + (8 - start.row);
     }
-    return NotationService.cellName(start);
+    return Notation.cellName(start);
   }
 
   pgnAddCheck() {
-    if (this.state() !== State.CheckMate && CheckService.kingInCheck(this.playerPieces(), this.opponentPieces(), this.whitesTurn())) {
+    if (this.state() !== State.CheckMate && Check.kingInCheck(this.playerPieces(), this.opponentPieces(), this.whitesTurn())) {
       this.pgn += '+';
     }
   }
 
   saveBoardState() {
-    let boardState: string = CheckService.getFEN(this.board(), this.whitesTurn());
+    let boardState: string = Check.getFEN(this.board(), this.whitesTurn());
     if (this.boardStates().has(boardState)) {
       this.boardStates.update(state => state.set(boardState, state.get(boardState)! + 1));
     }
@@ -284,8 +284,8 @@ export class GameService {
   }
 
   restart() {
-    this.whitePieces.set(MovesService.startPosition(true));
-    this.blackPieces.set(MovesService.startPosition(false));
+    this.whitePieces.set(Moves.startPosition(true));
+    this.blackPieces.set(Moves.startPosition(false));
     this.selectedCell.set(undefined);
     this.whitesTurn.set(true);
     this.movesSinceChange.set(0);
