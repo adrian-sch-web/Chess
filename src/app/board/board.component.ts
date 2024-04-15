@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
-import { PieceType } from '../Piece';
-import { Cell } from '../Cell';
-import { Position } from '../Position';
+import { PieceType } from '../data-objects/Piece';
+import { Cell } from '../data-objects/Cell';
+import { Position } from '../data-objects/Position';
 import { PieceComponent } from '../piece/piece.component';
 import { State } from '../State';
 import { GameOverComponent } from '../game-over/game-over.component';

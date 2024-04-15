@@ -3,20 +3,16 @@ import { CheckService } from './check.service';
 import { MovesService } from './moves.service';
 import { NotationService } from './notation.service';
 import { State } from './State';
-import { Cell } from './Cell';
-import { Piece, PieceType } from './Piece';
-import { Position } from './Position';
+import { Cell } from './data-objects/Cell';
+import { Piece, PieceType } from './data-objects/Piece';
+import { Position } from './data-objects/Position';
 
 @Injectable({
   providedIn: 'root'
 })
 export class GameService {
 
-  constructor(
-    private check: CheckService,
-    private moves: MovesService,
-    private notation: NotationService
-  ) {
+  constructor() {
     // increments the turncounter
     effect(() => {
       if (this.whitesTurn()) {
@@ -40,8 +36,8 @@ export class GameService {
     });
   }
 
-  whitePieces = signal<Piece[]>(this.moves.startPosition(true));
-  blackPieces = signal<Piece[]>(this.moves.startPosition(false));
+  whitePieces = signal<Piece[]>(MovesService.startPosition(true));
+  blackPieces = signal<Piece[]>(MovesService.startPosition(false));
   selectedCell = signal<Position | undefined>(undefined);
   whitesTurn = signal<boolean>(true);
   movesSinceChange = signal<number>(0);
@@ -58,7 +54,7 @@ export class GameService {
 
   state = computed<State>(() => {
     if (this.possibleMoves().size === 0) {
-      if (this.check.kingInCheck(this.playerPieces(), this.opponentPieces(), this.whitesTurn())) {
+      if (CheckService.kingInCheck(this.playerPieces(), this.opponentPieces(), this.whitesTurn())) {
         return State.CheckMate;
       }
       return State.StaleMate;
@@ -72,8 +68,8 @@ export class GameService {
       }
     }
     if (
-      this.check.insufficienMaterialCheck(this.whitePieces()) &&
-      this.check.insufficienMaterialCheck(this.blackPieces())
+      CheckService.insufficienMaterialCheck(this.whitePieces()) &&
+      CheckService.insufficienMaterialCheck(this.blackPieces())
     ) {
       return State.InsufficientMaterial;
     }
@@ -83,7 +79,7 @@ export class GameService {
   possibleMoves = computed<Map<Cell, Cell[]>>(() => {
     let moves = new Map<Cell, Cell[]>();
     for (let piece of this.playerPieces()) {
-      let pieceMoves = this.moves.getPossibleMoves(
+      let pieceMoves = MovesService.getPossibleMoves(
         piece,
         this.board(),
         this.playerPieces().filter(a => a.position.row !== piece.position.row || a.position.column !== piece.position.column),
@@ -132,8 +128,8 @@ export class GameService {
     let end: Position = { row: this.whitesTurn() ? 0 : 7, column: this.promoteColumn! };
     this.enPassent = undefined;
     this.pgn += ' ' + (this.whitesTurn() ? this.turnCount + '.' : '') +
-      (start.column !== end.column ? this.notation.columnLetter(start.column) + 'x' : '')
-      + this.notation.cellName(end) + '=' + this.notation.letter(type);
+      (start.column !== end.column ? NotationService.columnLetter(start.column) + 'x' : '')
+      + NotationService.cellName(end) + '=' + NotationService.letter(type);
     this.executeMove(start, end, type);
     this.promoteColumn = undefined;
     this.selectedCell.set(undefined);
@@ -239,16 +235,16 @@ export class GameService {
         type === PieceType.King && start.column - end.column > 1 ? 'O-O-O' : (
           (
             type === PieceType.Pawn ?
-              (start.column !== end.column ? this.notation.columnLetter(start.column) + 'x' : '') :
-              (this.notation.letter(type) + this.solveAmbiguity(start, end, type) + (this.board()[end.row][end.column].piece === PieceType.Empty ? '' : 'x'))
+              (start.column !== end.column ? NotationService.columnLetter(start.column) + 'x' : '') :
+              (NotationService.letter(type) + this.solveAmbiguity(start, end, type) + (this.board()[end.row][end.column].piece === PieceType.Empty ? '' : 'x'))
           )
-          + this.notation.cellName(end)));
+          + NotationService.cellName(end)));
   }
 
   solveAmbiguity(start: Position, end: Position, type: PieceType): string {
     let player = this.playerPieces().filter(a => a.type === type);
     player = player.filter(piece => {
-      return this.moves.getPossibleMoves(
+      return MovesService.getPossibleMoves(
         piece,
         this.board(),
         this.playerPieces().filter(a => a.position.row !== piece.position.row || a.position.column !== piece.position.column),
@@ -262,23 +258,23 @@ export class GameService {
     }
     let sameColumn = player.filter(piece => piece.position.column === start.column);
     if (sameColumn.length === 1) {
-      return this.notation.columnLetter(start.column);
+      return NotationService.columnLetter(start.column);
     }
     let sameRow = player.filter(piece => piece.position.row === start.row)
     if (sameRow.length === 1) {
       return '' + (8 - start.row);
     }
-    return this.notation.cellName(start);
+    return NotationService.cellName(start);
   }
 
   pgnAddCheck() {
-    if (this.state() !== State.CheckMate && this.check.kingInCheck(this.playerPieces(), this.opponentPieces(), this.whitesTurn())) {
+    if (this.state() !== State.CheckMate && CheckService.kingInCheck(this.playerPieces(), this.opponentPieces(), this.whitesTurn())) {
       this.pgn += '+';
     }
   }
 
   saveBoardState() {
-    let boardState: string = this.check.getFEN(this.board(), this.whitesTurn());
+    let boardState: string = CheckService.getFEN(this.board(), this.whitesTurn());
     if (this.boardStates().has(boardState)) {
       this.boardStates.update(state => state.set(boardState, state.get(boardState)! + 1));
     }
@@ -288,8 +284,8 @@ export class GameService {
   }
 
   restart() {
-    this.whitePieces.set(this.moves.startPosition(true));
-    this.blackPieces.set(this.moves.startPosition(false));
+    this.whitePieces.set(MovesService.startPosition(true));
+    this.blackPieces.set(MovesService.startPosition(false));
     this.selectedCell.set(undefined);
     this.whitesTurn.set(true);
     this.movesSinceChange.set(0);

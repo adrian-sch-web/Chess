@@ -1,5 +1,5 @@
 import { Component, Input, input } from '@angular/core';
-import { PieceType } from '../Piece';
+import { PieceType } from '../data-objects/Piece';
 
 @Component({
   selector: 'app-piece',
