@@ -4,24 +4,18 @@ import { Position } from './data-objects/Position';
 import { CheckService } from './check.service';
 
 
-
 export class MovesService {
 
   constructor() { }
-  constructor() { }
 
-  static getPossibleMoves(piece: Piece, board: Cell[][], playerPieces: Piece[], opponentPieces: Piece[], whitesTurn: boolean, enPassent?: Position): Cell[] {
   static getPossibleMoves(piece: Piece, board: Cell[][], playerPieces: Piece[], opponentPieces: Piece[], whitesTurn: boolean, enPassent?: Position): Cell[] {
     let moves: Cell[] = this.allPotentialMoves(piece, board, playerPieces, whitesTurn, enPassent);
     return moves.filter(move => {
       if (piece.type !== PieceType.King || Math.abs(move.position.column - piece.position.column) < 2) {
         return !CheckService.kingInCheck([...playerPieces, { position: move.position, moved: true, type: piece.type }],
-        return !CheckService.kingInCheck([...playerPieces, { position: move.position, moved: true, type: piece.type }],
           opponentPieces.filter(a => move.position.row !== a.position.row || move.position.column !== a.position.column), whitesTurn);
       }
       //castle
-      return !CheckService.kingInCheck([...playerPieces, piece], opponentPieces, whitesTurn) &&
-        !CheckService.kingInCheck([...playerPieces, {
       return !CheckService.kingInCheck([...playerPieces, piece], opponentPieces, whitesTurn) &&
         !CheckService.kingInCheck([...playerPieces, {
           position: { row: piece.position.row, column: piece.position.column + Math.sign(move.position.column - piece.position.column) },
@@ -31,12 +25,10 @@ export class MovesService {
           opponentPieces,
           whitesTurn) &&
         !CheckService.kingInCheck([...playerPieces, { position: move.position, moved: true, type: piece.type }], opponentPieces, whitesTurn);
-        !CheckService.kingInCheck([...playerPieces, { position: move.position, moved: true, type: piece.type }], opponentPieces, whitesTurn);
     });
   }
 
 
-  static allPotentialMoves(piece: Piece, board: Cell[][], playerPieces: Piece[], whitesTurn: boolean, enPassent?: Position): Cell[] {
   static allPotentialMoves(piece: Piece, board: Cell[][], playerPieces: Piece[], whitesTurn: boolean, enPassent?: Position): Cell[] {
     let moves: Cell[] = [];
     switch (piece.type) {
@@ -67,7 +59,6 @@ export class MovesService {
     return moves;
   }
 
-  static pawnMove(piece: Piece, board: Cell[][], white: boolean, enPassent?: Position): Cell[] {
   static pawnMove(piece: Piece, board: Cell[][], white: boolean, enPassent?: Position): Cell[] {
     let moves: Cell[] = [];
     let direction = white ? -1 : 1;
@@ -102,7 +93,6 @@ export class MovesService {
   }
 
   static knightMove(piece: Piece, board: Cell[][], white: boolean): Cell[] {
-  static knightMove(piece: Piece, board: Cell[][], white: boolean): Cell[] {
     let moves: Cell[] = [];
     let positions: Position[] = [];
     let row = piece.position.row;
@@ -127,7 +117,6 @@ export class MovesService {
   }
 
   static bishopMove(piece: Piece, board: Cell[][], white: boolean): Cell[] {
-  static bishopMove(piece: Piece, board: Cell[][], white: boolean): Cell[] {
     let moves: Cell[] = [];
     //down right
     moves.push(...this.straightLineMoves(board, piece.position, 1, 1, white));
@@ -140,7 +129,6 @@ export class MovesService {
     return moves;
   }
 
-  static rookMove(piece: Piece, board: Cell[][], white: boolean): Cell[] {
   static rookMove(piece: Piece, board: Cell[][], white: boolean): Cell[] {
     let moves: Cell[] = [];
     //up
@@ -155,12 +143,10 @@ export class MovesService {
   }
 
   static queenMove(piece: Piece, board: Cell[][], white: boolean): Cell[] {
-  static queenMove(piece: Piece, board: Cell[][], white: boolean): Cell[] {
     let moves: Cell[] = [...this.bishopMove(piece, board, white), ...this.rookMove(piece, board, white)];
     return moves;
   }
 
-  static kingMove(piece: Piece, board: Cell[][], pieces: Piece[], white: boolean): Cell[] {
   static kingMove(piece: Piece, board: Cell[][], pieces: Piece[], white: boolean): Cell[] {
     let moves: Cell[] = [];
     let row = piece.position.row;
@@ -203,7 +189,6 @@ export class MovesService {
   }
 
   static straightLineMoves(board: Cell[][], position: Position, rowDirection: number, colDirection: number, white: boolean): Cell[] {
-  static straightLineMoves(board: Cell[][], position: Position, rowDirection: number, colDirection: number, white: boolean): Cell[] {
     let moves: Cell[] = [];
     for (let i = 1; this.inField(position.row + i * rowDirection, position.column + i * colDirection); i++) {
       if (board[position.row + i * rowDirection][position.column + i * colDirection].piece === PieceType.Empty) {
@@ -219,11 +204,9 @@ export class MovesService {
   }
 
   static inField(row: number, column: number): boolean {
-  static inField(row: number, column: number): boolean {
     return row >= 0 && row <= 7 && column >= 0 && column <= 7;
   }
 
-  static startPosition(white: boolean): Piece[] {
   static startPosition(white: boolean): Piece[] {
     let pieces: Piece[] = [];
     for (let i = 0; i < 8; i++) {
