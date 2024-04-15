@@ -10,11 +10,13 @@ import { firstValueFrom } from 'rxjs/internal/firstValueFrom';
 })
 export class SaveFilesService {
   private url = 'https://localhost:7190/SaveLoadChess';
+  private placeHolderKey = 1;
 
   constructor(private game: GameService, private http: HttpClient) { }
 
   async save() {
     let gameDto = new GameDTO(
+      this.placeHolderKey,
       this.game.whitePieces(),
       this.game.blackPieces(),
       this.game.whitesTurn(),
@@ -31,7 +33,7 @@ export class SaveFilesService {
   }
 
   async load() {
-    let gameDto = await firstValueFrom(this.http.get<GameDTO>(this.url + '/LoadGame'));
+    let gameDto = await firstValueFrom(this.http.get<GameDTO>(this.url + '/LoadGame?key=' + this.placeHolderKey));
     this.game.whitePieces.set(gameDto.whitePieces);
     this.game.blackPieces.set(gameDto.blackPieces);
     this.game.whitesTurn.set(gameDto.whitesTurn);
@@ -48,6 +50,7 @@ export class SaveFilesService {
 }
 
 export class GameDTO {
+  id: number;
   whitePieces: Piece[];
   blackPieces: Piece[];
   whitesTurn: boolean;
@@ -58,6 +61,7 @@ export class GameDTO {
   notation: string;
 
   constructor(
+    id : number,
     whitePieces: Piece[],
     blackPieces: Piece[],
     whitesTurn: boolean,
@@ -66,6 +70,7 @@ export class GameDTO {
     notation: string,
     enPassent?: Position
   ) {
+    this.id = id;
     this.whitePieces = whitePieces;
     this.blackPieces = blackPieces;
     this.whitesTurn = whitesTurn;

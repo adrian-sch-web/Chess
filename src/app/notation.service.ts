@@ -1,23 +1,20 @@
-import { Injectable } from '@angular/core';
 import { PieceType } from './Piece';
 import { Position } from './Position';
 
-@Injectable({
-  providedIn: 'root'
-})
+
 export class NotationService {
 
   constructor() { }
 
-  cellName(position: Position): string {
+  static cellName(position: Position): string {
     return this.columnLetter(position.column) + (8 - position.row);
   }
 
-  columnLetter(column: number): string {
+  static columnLetter(column: number): string {
     return String.fromCharCode(97 + column);
   }
 
-  letter(piece: PieceType): string {
+  static letter(piece: PieceType): string {
     switch (piece) {
       case PieceType.Knight:
         return 'N';
