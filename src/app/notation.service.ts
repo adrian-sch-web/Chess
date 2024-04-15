@@ -2,18 +2,22 @@ import { PieceType } from './data-objects/Piece';
 import { Position } from './data-objects/Position';
 
 
+
 export class NotationService {
 
   constructor() { }
 
   static cellName(position: Position): string {
+  static cellName(position: Position): string {
     return this.columnLetter(position.column) + (8 - position.row);
   }
 
   static columnLetter(column: number): string {
+  static columnLetter(column: number): string {
     return String.fromCharCode(97 + column);
   }
 
+  static letter(piece: PieceType): string {
   static letter(piece: PieceType): string {
     switch (piece) {
       case PieceType.Knight:
