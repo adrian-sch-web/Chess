@@ -6,6 +6,7 @@ import { PieceComponent } from '../piece/piece.component';
 import { State } from '../State';
 import { GameOverComponent } from '../game-over/game-over.component';
 import { GameService } from '../game.service';
+import { SaveFilesService } from '../save-files.service';
 
 @Component({
   selector: 'app-board',
@@ -20,7 +21,7 @@ import { GameService } from '../game.service';
 export class BoardComponent {
   flip: boolean = false;
   promotePieces: number[] = [5, 4, 3, 2];
-  constructor(private game: GameService,) { }
+  constructor(private game: GameService, private save: SaveFilesService) { }
 
   whitesTurn(): boolean {
     return this.game.whitesTurn();
@@ -77,7 +78,15 @@ export class BoardComponent {
     return this.game.pgn.split(' ');
   }
 
-  boardStates():Map<string,number>{
+  boardStates(): Map<string, number> {
     return this.game.boardStates();
+  }
+
+  saveGame() {
+    this.save.save();
+  }
+  
+  loadGame(){
+    this.save.load();
   }
 }
