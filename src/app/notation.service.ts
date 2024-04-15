@@ -2,6 +2,7 @@ import { PieceType } from './data-objects/Piece';
 import { Position } from './data-objects/Position';
 
 
+
 export class NotationService {
 
   constructor() { }
