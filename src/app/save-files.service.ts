@@ -10,13 +10,13 @@ import { firstValueFrom } from 'rxjs/internal/firstValueFrom';
 })
 export class SaveFilesService {
   private url = 'https://localhost:7190/SaveLoadChess';
-  private placeHolderKey = 1;
+  public saveId: string = "";
+
 
   constructor(private game: GameService, private http: HttpClient) { }
 
   async save() {
     let gameDto = new GameDTO(
-      this.placeHolderKey,
       this.game.whitePieces(),
       this.game.blackPieces(),
       this.game.whitesTurn(),
@@ -29,11 +29,12 @@ export class SaveFilesService {
     for (let entry of states) {
       gameDto.boardStates.push(new BoardStateDTO(entry[0], entry[1]));
     }
-    await firstValueFrom(this.http.post(this.url + '/SaveGame', gameDto));
+    let id = await firstValueFrom(this.http.post(this.url + '/SaveGame', gameDto));
+    this.saveId = id.toString();
   }
 
-  async load() {
-    let gameDto = await firstValueFrom(this.http.get<GameDTO>(this.url + '/LoadGame?key=' + this.placeHolderKey));
+  async load(input: string) {
+    let gameDto = await firstValueFrom(this.http.get<GameDTO>(this.url + '/LoadGame?key=' + input));
     this.game.whitePieces.set(gameDto.whitePieces);
     this.game.blackPieces.set(gameDto.blackPieces);
     this.game.whitesTurn.set(gameDto.whitesTurn);
@@ -50,7 +51,6 @@ export class SaveFilesService {
 }
 
 export class GameDTO {
-  id: number;
   whitePieces: Piece[];
   blackPieces: Piece[];
   whitesTurn: boolean;
@@ -59,16 +59,17 @@ export class GameDTO {
   boardStates: BoardStateDTO[] = [];
   enPassent?: Position;
   notation: string;
+  id?: string;
 
   constructor(
-    id : number,
     whitePieces: Piece[],
     blackPieces: Piece[],
     whitesTurn: boolean,
     turnCount: number,
     movesSinceChange: number,
     notation: string,
-    enPassent?: Position
+    enPassent?: Position,
+    id?: string,
   ) {
     this.id = id;
     this.whitePieces = whitePieces;

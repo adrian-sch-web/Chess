@@ -8,6 +8,7 @@ import { GameOverComponent } from '../game-over/game-over.component';
 import { GameService } from '../game.service';
 import { SaveFilesService } from '../save-files.service';
 import { MatButtonModule } from '@angular/material/button';
+import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'app-board',
@@ -15,7 +16,8 @@ import { MatButtonModule } from '@angular/material/button';
   imports: [
     PieceComponent,
     GameOverComponent,
-    MatButtonModule
+    MatButtonModule,
+    MatInputModule
   ],
   templateUrl: './board.component.html',
   styleUrl: './board.component.scss'
@@ -88,7 +90,11 @@ export class BoardComponent {
     this.save.save();
   }
 
-  loadGame() {
-    this.save.load();
+  loadGame(input: string) {
+    this.save.load(input);
+  }
+
+  saveId(): string {
+    return this.save.saveId;
   }
 }
