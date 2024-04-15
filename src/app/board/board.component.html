@@ -7,12 +7,6 @@
         </button>
         }
     </div>
-    <div>
-        <button (click)="restart()">Restart</button>
-        <button (click)="flip = !flip">flip board</button>
-        <button (click)="saveGame()">save</button>
-        <button (click)="loadGame()">load</button>
-    </div>
     <div class="board">
         @for(row of board(); let rowId = $index; track rowId){
         <div class="row">
@@ -29,6 +23,12 @@
             }
         </div>
         }
+    </div>
+    <div class="buttons">
+        <button mat-raised-button (click)="saveGame()">save</button>
+        <button mat-raised-button (click)="loadGame()">load</button>
+        <button mat-raised-button (click)="restart()">Restart</button>
+        <button mat-raised-button (click)="flip = !flip">flip board</button>
     </div>
     @if(state() != 0) {
     <app-game-over [white]="whitesTurn()" [reason]="state()"></app-game-over>

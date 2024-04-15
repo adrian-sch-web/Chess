@@ -7,13 +7,15 @@ import { State } from '../State';
 import { GameOverComponent } from '../game-over/game-over.component';
 import { GameService } from '../game.service';
 import { SaveFilesService } from '../save-files.service';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-board',
   standalone: true,
   imports: [
     PieceComponent,
-    GameOverComponent
+    GameOverComponent,
+    MatButtonModule
   ],
   templateUrl: './board.component.html',
   styleUrl: './board.component.scss'
@@ -85,8 +87,8 @@ export class BoardComponent {
   saveGame() {
     this.save.save();
   }
-  
-  loadGame(){
+
+  loadGame() {
     this.save.load();
   }
 }
