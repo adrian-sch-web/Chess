@@ -1,15 +1,11 @@
-import { Injectable } from '@angular/core';
-import { Piece, PieceType } from './Piece';
-import { Cell } from './Cell';
+import { Piece, PieceType } from './data-objects/Piece';
+import { Cell } from './data-objects/Cell';
 
-@Injectable({
-  providedIn: 'root'
-})
 export class CheckService {
 
   constructor() { }
 
-  kingInCheck(player: Piece[], opponent: Piece[], white: boolean): boolean {
+  static kingInCheck(player: Piece[], opponent: Piece[], white: boolean): boolean {
     let opponentDirection = white ? -1 : 1;
     let king = player.find(piece => piece.type === PieceType.King);
     if (king === undefined) {
@@ -57,7 +53,7 @@ export class CheckService {
     return false;
   }
 
-  knightCheckTest(king: Piece, opponent: Piece) {
+  static knightCheckTest(king: Piece, opponent: Piece) {
     let pieceRow = opponent.position.row;
     let pieceColumn = opponent.position.column;
     let kingRow = king.position.row;
@@ -72,7 +68,7 @@ export class CheckService {
       || (pieceRow === kingRow - 2 && pieceColumn === kingColumn - 1)
   }
 
-  bishopCheckTest(king: Piece, opponent: Piece, pieces: Piece[]): boolean {
+  static bishopCheckTest(king: Piece, opponent: Piece, pieces: Piece[]): boolean {
     if (Math.abs(king.position.row - opponent.position.row) === Math.abs(king.position.column - opponent.position.column)) {
       let rowDif = opponent.position.row - king.position.row;
       let colDif = opponent.position.column - king.position.column;
@@ -88,7 +84,7 @@ export class CheckService {
     return false;
   }
 
-  RookCheckTest(king: Piece, opponent: Piece, pieces: Piece[]): boolean {
+  static RookCheckTest(king: Piece, opponent: Piece, pieces: Piece[]): boolean {
     if (king.position.row === opponent.position.row || king.position.column === opponent.position.column) {
       let rowDif = opponent.position.row - king.position.row;
       let colDif = opponent.position.column - king.position.column;
@@ -104,7 +100,7 @@ export class CheckService {
     return false;
   }
 
-  insufficienMaterialCheck(pieces: Piece[]): boolean {
+  static insufficienMaterialCheck(pieces: Piece[]): boolean {
     if (pieces.length > 2) {
       return false;
     }
@@ -120,7 +116,7 @@ export class CheckService {
     return false;
   }
 
-  getFEN(board: Cell[][], white: boolean): string {
+  static getFEN(board: Cell[][], white: boolean): string {
     let stateFEN: string = '';
     for (let i = 0; i < board[0].length; i++) {
       for (let j = 0; j < board.length; j++) {
