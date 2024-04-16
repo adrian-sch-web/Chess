@@ -87,14 +87,14 @@ export class BoardComponent {
   }
 
   saveGame() {
-    this.save.save();
+    this.game.saveGame();
   }
 
   loadGame(input: string) {
-    this.save.load(input);
+    this.game.loadGame(input);
   }
 
   saveId(): string {
-    return this.save.saveId;
+    return this.game.saveId;
   }
 }

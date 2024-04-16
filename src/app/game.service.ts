@@ -6,13 +6,16 @@ import { State } from './State';
 import { Cell } from './data-objects/Cell';
 import { Piece, PieceType } from './data-objects/Piece';
 import { Position } from './data-objects/Position';
+import { GameDTO } from './data-objects/GameDTO';
+import { BoardStateDTO } from './data-objects/BoardStateDTO';
+import { SaveFilesService } from './save-files.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class GameService {
 
-  constructor() {
+  constructor(private save: SaveFilesService) {
     // increments the turncounter
     effect(() => {
       if (this.whitesTurn()) {
@@ -35,6 +38,7 @@ export class GameService {
       }
     });
   }
+  public saveId: string = '';
 
   whitePieces = signal<Piece[]>(Moves.startPosition(true));
   blackPieces = signal<Piece[]>(Moves.startPosition(false));
@@ -280,6 +284,42 @@ export class GameService {
     }
     else {
       this.boardStates.update(state => state.set(boardState, 1))
+    }
+  }
+
+  async saveGame() {
+    let gameDto = new GameDTO(
+      this.whitePieces(),
+      this.blackPieces(),
+      this.whitesTurn(),
+      this.turnCount,
+      this.movesSinceChange(),
+      this.pgn,
+      this.enPassent
+    );
+    let states = this.boardStates();
+    for (let entry of states) {
+      gameDto.boardStates.push(new BoardStateDTO(entry[0], entry[1]));
+    }
+    this.saveId = await this.save.save(gameDto);
+  }
+
+  async loadGame(input: string) {
+    let gameDto = await this.save.load(input);
+    this.whitePieces.set(gameDto.whitePieces);
+    this.blackPieces.set(gameDto.blackPieces);
+    this.whitesTurn.set(gameDto.whitesTurn);
+    this.turnCount = gameDto.turnCount;
+    this.movesSinceChange.set(gameDto.movesSinceChange);
+    this.enPassent = gameDto.enPassent;
+    var readStates = gameDto.boardStates;
+    let writeStates: Map<string, number> = new Map<string, number>();
+    for (let state of readStates) {
+      writeStates.set(state.state, state.occurences);
+    }
+    this.boardStates.set(writeStates);
+    if (gameDto.id) {
+      this.saveId = gameDto.id;
     }
   }
 
