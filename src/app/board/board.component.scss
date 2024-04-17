@@ -9,31 +9,43 @@
     width: fit-content;
     border-width: 1px;
 }
+
 .row {
     display: flex;
 }
+
 .cell {
     text-align: center;
     width: 100px;
     height: 100px;
 }
 
-.moves {
-    display:grid
-}
-
 .promote {
     position: absolute;
 }
 
-.buttons{
+.buttons {
     display: flex;
-    flex-direction: column;    
+    flex-direction: column;
+    min-width: 300px;
     margin: 10px;
     gap: 10px
 }
 
-.board-view-container{
-    display:flex;
-    justify-content: space-around;
+.board-view-container {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.moves-container{
+    min-width: 300px;
+}
+
+.moves {
+    display: grid;
+}
+
+.moves-row {
+    min-width: 65px;
+    
 }

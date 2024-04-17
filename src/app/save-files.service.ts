@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { GameService } from './game.service';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs/internal/firstValueFrom';
 import { GameDTO } from './data-objects/GameDTO';
@@ -18,7 +17,7 @@ export class SaveFilesService {
   }
 
   async load(input: string): Promise<GameDTO> {
-    let gameDto = await firstValueFrom(this.http.get<GameDTO>(this.url + '/LoadGame?key=' + input));
+    let gameDto = await firstValueFrom(this.http.get<GameDTO>(this.url + '/LoadGame?gameId=' + input));
     return gameDto;
   }
 }

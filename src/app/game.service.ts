@@ -9,13 +9,14 @@ import { Position } from './data-objects/Position';
 import { GameDTO } from './data-objects/GameDTO';
 import { BoardStateDTO } from './data-objects/BoardStateDTO';
 import { SaveFilesService } from './save-files.service';
+import { CookieService } from 'ngx-cookie-service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class GameService {
 
-  constructor(private save: SaveFilesService) {
+  constructor(private save: SaveFilesService, private cookieService: CookieService) {
     // increments the turncounter
     effect(() => {
       if (this.whitesTurn()) {
@@ -37,8 +38,11 @@ export class GameService {
           this.pgn += ' 1/2-1/2';
       }
     });
+    this.gameId = this.cookieService.get(this.cookieKey);
+    this.loadGame(this.gameId);
   }
-  public saveId: string = '';
+  private cookieKey = 'gameId';
+  public gameId: string = '';
 
   whitePieces = signal<Piece[]>(Moves.startPosition(true));
   blackPieces = signal<Piece[]>(Moves.startPosition(false));
@@ -281,10 +285,9 @@ export class GameService {
     let boardState: string = Check.getFEN(this.board(), this.whitesTurn());
     if (this.boardStates().has(boardState)) {
       this.boardStates.update(state => state.set(boardState, state.get(boardState)! + 1));
+      return;
     }
-    else {
-      this.boardStates.update(state => state.set(boardState, 1))
-    }
+    this.boardStates.update(state => state.set(boardState, 1));
   }
 
   async saveGame() {
@@ -301,10 +304,17 @@ export class GameService {
     for (let entry of states) {
       gameDto.boardStates.push(new BoardStateDTO(entry[0], entry[1]));
     }
-    this.saveId = await this.save.save(gameDto);
+    if (this.gameId != '') {
+      gameDto.id = this.gameId;
+    }
+    this.gameId = await this.save.save(gameDto);
+    this.cookieService.set(this.cookieKey, this.gameId, undefined, undefined, undefined, true, 'None');
   }
 
   async loadGame(input: string) {
+    if (input.length != 36) {
+      return;
+    }
     let gameDto = await this.save.load(input);
     this.whitePieces.set(gameDto.whitePieces);
     this.blackPieces.set(gameDto.blackPieces);
@@ -319,7 +329,8 @@ export class GameService {
     }
     this.boardStates.set(writeStates);
     if (gameDto.id) {
-      this.saveId = gameDto.id;
+      this.gameId = gameDto.id;
+      this.cookieService.set(this.cookieKey, this.gameId, undefined, undefined, undefined, true, 'None');
     }
   }
 
