@@ -9,13 +9,14 @@ import { Position } from './data-objects/Position';
 import { GameDTO } from './data-objects/GameDTO';
 import { BoardStateDTO } from './data-objects/BoardStateDTO';
 import { SaveFilesService } from './save-files.service';
+import { CookieService } from 'ngx-cookie-service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class GameService {
 
-  constructor(private save: SaveFilesService) {
+  constructor(private save: SaveFilesService, private cookieService: CookieService) {
     // increments the turncounter
     effect(() => {
       if (this.whitesTurn()) {
@@ -37,6 +38,8 @@ export class GameService {
           this.pgn += ' 1/2-1/2';
       }
     });
+    this.saveId = this.cookieService.get('saveId');
+    this.loadGame(this.saveId);
   }
   public saveId: string = '';
 
@@ -301,10 +304,17 @@ export class GameService {
     for (let entry of states) {
       gameDto.boardStates.push(new BoardStateDTO(entry[0], entry[1]));
     }
+    if (this.saveId != '') {
+      gameDto.id = this.saveId;
+    }
     this.saveId = await this.save.save(gameDto);
+    this.cookieService.set('saveId', this.saveId, undefined, undefined, undefined, true, 'None');
   }
 
   async loadGame(input: string) {
+    if(input.length != 36){
+      return;
+    }
     let gameDto = await this.save.load(input);
     this.whitePieces.set(gameDto.whitePieces);
     this.blackPieces.set(gameDto.blackPieces);
@@ -320,6 +330,7 @@ export class GameService {
     this.boardStates.set(writeStates);
     if (gameDto.id) {
       this.saveId = gameDto.id;
+      this.cookieService.set('saveId', this.saveId, undefined, undefined, undefined, true, 'None');
     }
   }
 

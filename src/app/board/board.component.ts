@@ -9,6 +9,7 @@ import { GameService } from '../game.service';
 import { SaveFilesService } from '../save-files.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
+import { MatExpansionModule } from '@angular/material/expansion';
 
 @Component({
   selector: 'app-board',
@@ -17,7 +18,8 @@ import { MatInputModule } from '@angular/material/input';
     PieceComponent,
     GameOverComponent,
     MatButtonModule,
-    MatInputModule
+    MatInputModule,
+    MatExpansionModule
   ],
   templateUrl: './board.component.html',
   styleUrl: './board.component.scss'

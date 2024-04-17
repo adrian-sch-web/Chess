@@ -3,12 +3,17 @@
         <button mat-raised-button (click)="restart()">Restart</button>
         <button mat-raised-button (click)="flip = !flip">flip board</button>
         <button mat-raised-button (click)="saveGame()">save</button>
-        <button mat-raised-button (click)="loadGame(saveIdInput.value); saveIdInput.value = ''">load</button>
-        <input matInput type="text" #saveIdInput/>
+        <mat-expansion-panel hideToggle>
+            <mat-expansion-panel-header>Enter custom save code</mat-expansion-panel-header>
+            <div>
+                <input matInput type="text" #saveIdInput />
+                <button mat-raised-button color="primary" (click)="loadGame(saveIdInput.value); saveIdInput.value = ''">load</button>
+            </div>
+        </mat-expansion-panel>
+        
         @if(saveId().length > 0){
-            <div>Saved under the following Id:</div>
-            <div>{{saveId()}}</div>
-            <div>Copy to continue from this point</div>
+        <div>Saved under the following key:</div>
+        <div>{{saveId()}}</div>
         }
     </div>
     <div class="board-container">
@@ -45,7 +50,7 @@
         <h3>Moves:</h3>
         <div class="moves">
             @for(move of getPgnSplit(); track $index){
-            <div [style.grid-row]="pgnMoveRow($index)">
+            <div class="moves-row" [style.grid-row]="pgnMoveRow($index)">
                 {{move}}
             </div>
             }
