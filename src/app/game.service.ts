@@ -10,14 +10,12 @@ import { GameDTO } from './data-objects/GameDTO';
 import { BoardStateDTO } from './data-objects/BoardStateDTO';
 import { SaveFilesService } from './save-files.service';
 import { CookieService } from 'ngx-cookie-service';
-import { CookieService } from 'ngx-cookie-service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class GameService {
 
-  constructor(private save: SaveFilesService, private cookieService: CookieService) {
   constructor(private save: SaveFilesService, private cookieService: CookieService) {
     // increments the turncounter
     effect(() => {
